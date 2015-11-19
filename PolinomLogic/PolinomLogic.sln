@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PolinomLogic", "PolinomLogic\PolinomLogic.csproj", "{CBCEA89C-2AFB-4547-BC0D-1E83A49D22B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestToPolinom", "..\TestToPolinom\TestToPolinom.csproj", "{8FE6C68B-6DA3-4170-91BF-3CF061DA9E53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{CBCEA89C-2AFB-4547-BC0D-1E83A49D22B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CBCEA89C-2AFB-4547-BC0D-1E83A49D22B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CBCEA89C-2AFB-4547-BC0D-1E83A49D22B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FE6C68B-6DA3-4170-91BF-3CF061DA9E53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FE6C68B-6DA3-4170-91BF-3CF061DA9E53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FE6C68B-6DA3-4170-91BF-3CF061DA9E53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FE6C68B-6DA3-4170-91BF-3CF061DA9E53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
