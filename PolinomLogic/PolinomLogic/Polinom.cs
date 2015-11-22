@@ -40,7 +40,7 @@ namespace PolinomLogic
                Degree();
             }
         }
-        public void Degree()
+        private void Degree()
         {
             if (coef == null)
                 throw new ArgumentNullException();
