@@ -11,35 +11,74 @@ namespace PolinomLogic
 {
     public class Polinom:ICloneable
     {
-        private readonly double[] coef={};
-        private readonly int degree;
+        private readonly double[] coef = {};
+        private int degree;
 
-        private Polinom( params  double[] list)
+        public Polinom( params  double[] list)
         {
-            coef = list;
-            degree = list.Length;
+            if(list==null)
+                throw new ArgumentNullException();
+
+            coef = new double[list.Length];
+            for (int i = 0; i < list.Length; i++)
+            {
+                coef[i] = list[i];
+            }
+
+        }
+
+        public double this[int i]
+        {
+            get
+            {
+                if(i>degree)
+                    throw new ArgumentOutOfRangeException();
+                return coef[i];
+            }
+            set
+            {
+               Degree();
+            }
+        }
+        public void Degree()
+        {
+            if (coef == null)
+                throw new ArgumentNullException();
+            int i = coef.Length - 1;
+            while (coef[i] == 0 && i >= 0)
+            {
+                i--;
+            }
+            degree = i;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj == null)
+            if (ReferenceEquals(obj,null))
                 return false;
             Polinom m = obj as Polinom;
             if (m as Polinom == null)
                 return false;
-            return m.coef == this.coef && m.degree==this.degree;
+            return this.Equals(m);
         }
         public  bool Equals(Polinom obj)
         {
             if (obj == null)
                 return false;
-           
-            return obj.coef == this.coef && obj.degree==this.degree;
+            if (obj.degree != this.degree)
+                return false;
+            if (obj.coef == this.coef)
+            return true;
+            return true;
+            
         }
 
         public override int GetHashCode()
         {
-            return (int)this.coef[0]+this.degree;
+            if (coef != null)
+                return (int) (coef[0] + degree + coef[degree - 1]);
+            else return 0;
+
         }
 
         //public override string ToString()
