@@ -9,14 +9,19 @@ using System.Threading.Tasks;
 
 namespace PolinomLogic
 {
-    public class Polinom:ICloneable
+    public class Polinom : ICloneable
     {
-        private readonly double[] coef = {};
-        private int degree;
+        #region fields
 
-        public Polinom( params  double[] list)
+        private static double eps = 0.000001;
+        private readonly double[] coef = { };
+        private int degree;
+        #endregion
+
+        #region Ctors
+        public Polinom(params  double[] list)
         {
-            if(list==null)
+            if (list == null)
                 throw new ArgumentNullException();
 
             coef = new double[list.Length];
@@ -26,131 +31,165 @@ namespace PolinomLogic
             }
 
         }
+        #endregion
 
         public double this[int i]
         {
             get
             {
-                if(i>degree)
+                if (i > degree || i < 0)
                     throw new ArgumentOutOfRangeException();
                 return coef[i];
             }
-            set
+            private set
             {
-               Degree();
+                if (i > degree || i < 0)
+                    throw new ArgumentOutOfRangeException(); 
+               coef[i]=value;
             }
         }
-        private void Degree()
+        public int Degree
         {
-            if (coef == null)
-                throw new ArgumentNullException();
-            int i = coef.Length - 1;
-            while (coef[i] == 0 && i >= 0)
+            get
             {
-                i--;
+                if (coef == null)
+                    throw new ArgumentNullException();
+                int i = coef.Length - 1;
+                while (Math.Abs(coef[i]) < eps && i >= 0)
+                {
+                    i--;
+                }
+                degree = i;
+                return degree;
+                
             }
-            degree = i;
+
+            set { degree = value; }
+
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj,null))
+            if (ReferenceEquals(obj, null))
                 return false;
-            Polinom m = obj as Polinom;
-            if (m as Polinom == null)
+            if (ReferenceEquals(obj, this))
+                return true;
+            Polinom m = new Polinom();
+            if (m.GetType()==obj.GetType())
                 return false;
-            return this.Equals(m);
-        }
-        public  bool Equals(Polinom obj)
-        {
-            if (obj == null)
-                return false;
-            if (obj.degree != this.degree)
-                return false;
-            if (obj.coef == this.coef)
-            return true;
-            return true;
             
+                return this.Equals(m);
+        }
+        public bool Equals(Polinom p)
+        {
+            if (ReferenceEquals(p, null))
+                return false;
+            if (ReferenceEquals(p, this))
+                return true;
+            if (p.degree != this.degree)
+                return false;
+            //!!!!!!!!!!!!
+            for (int i = 0; i < coef.Length; i++)
+            {
+                if (Math.Abs(coef[i] - p[i]) > eps)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         public override int GetHashCode()
         {
-            if (coef != null)
-                return (int) (coef[0] + degree + coef[degree - 1]);
-            else return 0;
+            return coef.GetHashCode();
 
         }
 
-        //public override string ToString()
-        //{
-        //    int count = 0;
-        //    string s="";
-        //    foreach (int i in this.coef)
-        //    {
-        //        s+= i + "x^{0}";
-        //    }
-        //    return null;
-        //}
-        public object Clone()
+        public override string ToString()
         {
-            return this.MemberwiseClone();
-        }
-
-        public static Polinom operator +(Polinom obj1, Polinom obj2)
-        {
-            if (obj1 == null || obj2 == null)
-                throw new ArgumentNullException();
-            Polinom newm;
-            if (obj1.degree > obj2.degree)
+            int count = 0;
+            string s = "";
+            foreach (int i in this.coef)
             {
-               newm = (Polinom)obj1.Clone();
+                s += i + "x^{0}";
             }
-            else
-            {newm = (Polinom)obj2.Clone();}
+            return null;
+        }
+        object ICloneable.Clone()
+        {
+            return this.Clone();
+        }
 
-            for(int i=0; i<Math.Min(obj1.degree,obj2.degree);i++)
+        public Polinom Clone()
+        {
+            return new Polinom(this.coef);
+        }
+
+        public static Polinom operator +(Polinom p1, Polinom p2)
+        {
+            if (p1 == null || p2 == null)
+                throw new ArgumentNullException();
+
+            Polinom newm = p1.degree > p2.degree ? p1.Clone() : p2.Clone();
+
+            for (int i = 0; i < Math.Min(p1.degree, p2.degree); i++)
             {
-                if (newm.Equals(obj1))
+                if (newm.Equals(p1))
                 {
-                    newm.coef[i] += obj2.coef[i];
+                    newm.coef[i] += p2.coef[i];
                 }
                 else
                 {
-                    newm.coef[i] += obj1.coef[i];
+                    newm.coef[i] += p1.coef[i];
                 }
             }
             return newm;
         }
 
-        public  Polinom Add(Polinom obj)
+        public static Polinom Add(Polinom lhs, Polinom rhs)
         {
-            return this+obj;
+            return lhs + rhs;
         }
-        public static Polinom operator *(Polinom obj, double a)
+        public static Polinom operator *(Polinom p, double a)
         {
-            if (obj==null)
+            if (p == null)
                 throw new ArgumentNullException();
-            double[] masc = new double[obj.degree];
-            for (int i = 0; i < obj.degree; i++)
+
+            Polinom polinom = p.Clone();
+
+            for (int i = 0; i < p.degree; i++)
             {
-                masc[i] += obj.coef[i]*a;
+                polinom[i] = a * polinom[i];
             }
-            return new Polinom(masc);
+            return polinom;
         }
 
-        public static Polinom operator -(Polinom obj1, Polinom obj2)
+        public static Polinom operator -(Polinom p1, Polinom p2)
         {
-            if (obj1 == null || obj2 == null)
+            if (p1 == null || p2 == null)
                 throw new ArgumentNullException();
-            double a = -1.0;
-            Polinom newm = (Polinom)obj1.Clone();
-            newm.Add(obj2*a);
-            return newm;
+
+            return p1 + p2 * (-1);
         }
 
-        public Polinom Sub(Polinom obj)
+        public static  Polinom Sub(Polinom lhs, Polinom rhs)
         {
-            return this - obj;
+            return lhs - rhs;
+        }
+
+        public Polinom Mult(Polinom p)
+        {
+            if (ReferenceEquals(p, null) || ReferenceEquals(this, null))
+                throw new ArgumentNullException();
+            Polinom pl = new Polinom(new double[degree + p.degree + 1]);
+            for (int i = 0; i < degree; i++)
+            {
+                for (int k = 0; k < p.degree; k++)
+                {
+                    pl[i + k] += coef[i] * p.coef[k];
+                }
+            }
+            return pl;
         }
     }
 }
