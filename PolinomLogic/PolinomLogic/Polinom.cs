@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Configuration.Internal;
+using System.Diagnostics;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +17,25 @@ namespace PolinomLogic
     {
         #region fields
 
-        private static double eps = 0.000001;
+        private static double eps = 0.00001;
         private readonly double[] coef = { };
         private int degree;
         #endregion
 
         #region Ctors
+
+        // static Polinom()
+        //{
+        //    try
+        //    {
+        //        eps = Convert.ToDouble(ConfigurationManager.AppSettings["eps"]);
+        //    }
+        //    catch (ConfigurationErrorsException)
+        //    {
+        //        eps = 0.000001;
+        //    }
+        //}
+
         public Polinom(params  double[] list)
         {
             if (list == null)
@@ -39,15 +56,35 @@ namespace PolinomLogic
             {
                 if (i > degree || i < 0)
                     throw new ArgumentOutOfRangeException();
+
                 return coef[i];
             }
-            private set
+            set
             {
                 if (i > degree || i < 0)
-                    throw new ArgumentOutOfRangeException(); 
-               coef[i]=value;
+                    throw new ArgumentOutOfRangeException();
+
+                coef[i] = value;
+                //if (Math.Abs(value) < eps && i == degree)
+                //{
+                //    FindDegree();
+                //}
             }
         }
+
+        //public int FindDegree()
+        //{
+        //    if (coef == null)
+        //        throw new ArgumentNullException();
+        //    int i = coef.Length - 1;
+        //    while (coef[i] < eps && i > -1)
+        //    {
+        //        i--;
+        //    }
+        //    degree = i;
+        //    return degree;
+        //}
+
         public int Degree
         {
             get
@@ -55,13 +92,13 @@ namespace PolinomLogic
                 if (coef == null)
                     throw new ArgumentNullException();
                 int i = coef.Length - 1;
-                while (Math.Abs(coef[i]) < eps && i >= 0)
+                while (Math.Abs(coef[i]) < 0.000001 && i >= 0)
                 {
                     i--;
                 }
                 degree = i;
                 return degree;
-                
+
             }
 
             set { degree = value; }
@@ -74,11 +111,12 @@ namespace PolinomLogic
                 return false;
             if (ReferenceEquals(obj, this))
                 return true;
-            Polinom m = new Polinom();
-            if (m.GetType()==obj.GetType())
+            Polinom p = new Polinom();
+
+            if (p.GetType() != obj.GetType())
                 return false;
-            
-                return this.Equals(m);
+            p = (Polinom)obj;
+            return Equals(p);
         }
         public bool Equals(Polinom p)
         {
@@ -86,15 +124,14 @@ namespace PolinomLogic
                 return false;
             if (ReferenceEquals(p, this))
                 return true;
-            if (p.degree != this.degree)
+            if (p.degree != degree)
                 return false;
             //!!!!!!!!!!!!
-            for (int i = 0; i < coef.Length; i++)
+            for (int i = 0; i < degree; i++)
             {
                 if (Math.Abs(coef[i] - p[i]) > eps)
-                {
+
                     return false;
-                }
             }
             return true;
         }
@@ -105,16 +142,20 @@ namespace PolinomLogic
 
         }
 
-        public override string ToString()
-        {
-            int count = 0;
-            string s = "";
-            foreach (int i in this.coef)
-            {
-                s += i + "x^{0}";
-            }
-            return null;
-        }
+        //public override string ToString()
+        //{
+        //    string str = "";
+        //    //double[] mass = new double[coef.Length];
+        //    for (int i = 0; i < coef.Length; i++)
+        //    {
+        //        if (coef[i] > eps)
+        //            str += coef[i] + "x^i+";
+
+        //    }
+
+
+        //    return str;
+        //}
         object ICloneable.Clone()
         {
             return this.Clone();
@@ -122,7 +163,7 @@ namespace PolinomLogic
 
         public Polinom Clone()
         {
-            return new Polinom(this.coef);
+            return new Polinom(coef);
         }
 
         public static Polinom operator +(Polinom p1, Polinom p2)
@@ -172,24 +213,42 @@ namespace PolinomLogic
             return p1 + p2 * (-1);
         }
 
-        public static  Polinom Sub(Polinom lhs, Polinom rhs)
+        public static Polinom Sub(Polinom lhs, Polinom rhs)
         {
             return lhs - rhs;
         }
 
-        public Polinom Mult(Polinom p)
+        public static Polinom Mult(Polinom lhs, Polinom rhs)
         {
-            if (ReferenceEquals(p, null) || ReferenceEquals(this, null))
+            if (ReferenceEquals(lhs, null) || ReferenceEquals(rhs, null))
                 throw new ArgumentNullException();
-            Polinom pl = new Polinom(new double[degree + p.degree + 1]);
-            for (int i = 0; i < degree; i++)
+            Polinom p2 = new Polinom(new double[lhs.degree + rhs.degree + 1]);
+            for (int i = 0; i < lhs.degree; i++)
             {
-                for (int k = 0; k < p.degree; k++)
+                Polinom p1 = rhs * lhs[i];
+                for (int k = 0; k < rhs.degree; k++)
                 {
-                    pl[i + k] += coef[i] * p.coef[k];
+                    p2[i + k] += p1[i];
                 }
             }
-            return pl;
+            return p2;
+        }
+        public static bool operator ==(Polinom lhs, Polinom rhs)
+        {
+            if (ReferenceEquals(rhs, lhs))
+            {
+                return true;
+            }
+            if (ReferenceEquals(lhs, null))
+            {
+                return false;
+            }
+            return lhs.Equals(rhs);
+        }
+
+        public static bool operator !=(Polinom lhs, Polinom rhs)
+        {
+            return !(lhs == rhs);
         }
     }
 }
