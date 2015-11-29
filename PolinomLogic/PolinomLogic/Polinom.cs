@@ -3,6 +3,7 @@ using System.Configuration.Internal;
 using System.Diagnostics;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Resources;
@@ -142,20 +143,21 @@ namespace PolinomLogic
 
         }
 
-        //public override string ToString()
-        //{
-        //    string str = "";
-        //    //double[] mass = new double[coef.Length];
-        //    for (int i = 0; i < coef.Length; i++)
-        //    {
-        //        if (coef[i] > eps)
-        //            str += coef[i] + "x^i+";
+        public override string ToString()
+        {
+            string str = "";
+            str += coef[0];
+            //double[] mass = new double[coef.Length];
+            for (int i = 1; i < coef.Length; i++)
+            {
+                if (coef[i] > eps)
+                    str += coef[i] + "x^"+i;
 
-        //    }
+            }
 
 
-        //    return str;
-        //}
+            return str;
+        }
         object ICloneable.Clone()
         {
             return this.Clone();
